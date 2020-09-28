@@ -3,16 +3,59 @@
 <head>
 	<title>John Snow's Map</title>
 	<script src="https://d3js.org/d3.v3.min.js"></script>
-	<script type="text/javascript" src="build_map.js"></script>
 
 </head>
 <body>
-	<svg id="main" width="800" height="800">
+	<!-- transform = "rotate(180) scale(-1,1)" -->
+	<svg id="map" width=800 height=600  >
 		
 	</svg>
-
-	<script type="text/javascript">
-		
-	</script>
 </body>
+<script type="text/javascript">
+	const streets = 'resources/streets.json'	
+	const pumps = 'resources/pumps.csv'
+  	let map = d3.select("#map");
+	const xScale = d3.scale.linear();
+	const yScale = d3.scale.linear();
+
+	xScale.domain([0,20]).range([0, 600]);			
+	yScale.domain([20,0]).range( [0, 600]);
+
+	//  reading json file from d3
+	d3.json(streets, function(data) {
+    	let states_data = data;
+    	
+		const pathLineGeneratorHelper = d3.svg.line()
+  			.x(function(d) { return xScale(d.x);})
+  			.y(function(d) { return yScale(d.y);})
+  			.interpolate("linear");
+			
+		map.selectAll(".line")
+   	 		.data(states_data)
+    		.enter()
+    		.append("path")
+    		.attr("d", pathLineGeneratorHelper)
+			.style('fill', 'none')
+			.style('stroke', 'black')
+			.style('stroke-width', '1px')
+		;
+	});
+
+	d3.csv(pumps, function(data) {
+		let pumps_location = data;
+		map.selectAll('.marker')
+	    .data(pumps_location)
+	    .enter()
+	    .append("defs")
+	    .append('marker')
+	      .attr('markerHeight', 1)
+	      .attr('markerWidth', 1)
+	      .attr('markerUnits', 'strokeWidth')
+	      .attr('orient', 'auto')
+	      .attr('refX', 0)
+	      .attr('refY', 0).append("circle").attr('r', 5).style('fill', 'blue');
+	});
+
+	
+</script>
 </html>
