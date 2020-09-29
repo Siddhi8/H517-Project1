@@ -14,12 +14,28 @@
 <script type="text/javascript">
 	const streets = 'resources/streets.json'	
 	const pumps = 'resources/pumps.csv'
+	const deaths_age_sex = 'resources/deaths_age_sex.csv'
+	const MALE = "male";
+	const female = "female";
+	const NUM_AGE_GROUP = {
+		"0": "<=10",
+		"1": "11-20",
+		"2": "21-40",
+		"3": "41-60",,
+		"4": "61-80",,
+		"5": ">80"
+	}
+
+	const NUM_GENDER_MAP = {
+		"0": MALE,
+		"1": FEMALE
+	}
   	let map = d3.select("#map");
 	const xScale = d3.scale.linear();
 	const yScale = d3.scale.linear();
 
-	xScale.domain([0,20]).range([0, 600]);			
-	yScale.domain([20,0]).range( [0, 600]);
+	xScale.domain([0,20]).range([0, 700]);			
+	yScale.domain([20,0]).range( [0, 700]);
 
 	//  reading json file from d3
 	d3.json(streets, function(data) {
@@ -41,19 +57,55 @@
 		;
 	});
 
+	//Reading pumps data
 	d3.csv(pumps, function(data) {
-		let pumps_location = data;
-		map.selectAll('.marker')
-	    .data(pumps_location)
-	    .enter()
-	    .append("defs")
-	    .append('marker')
-	      .attr('markerHeight', 1)
-	      .attr('markerWidth', 1)
-	      .attr('markerUnits', 'strokeWidth')
-	      .attr('orient', 'auto')
-	      .attr('refX', 0)
-	      .attr('refY', 0).append("circle").attr('r', 5).style('fill', 'blue');
+		let pump_location = [];
+		let xPump = [];
+		let yPump = [];
+
+
+    	for (var i = 0; i < data.length; i++) {
+      	  pump_location.push({"x": parseFloat(data[i].x), "y": parseFloat(data[i].y)});
+    	}
+    	console.log(pump_location);
+    	map.selectAll("circles")
+			.data(pump_location)
+			.enter()
+			.append("circle")
+			.attr("r", 7)
+			.style("fill", "black")
+			.attr("cx", function (d) { return xScale(d.x); })
+			.attr("cy", function (d) { return yScale(d.y); })
+	});
+
+
+	//Reading deaths data
+	d3.csv(deaths_age_sex, function(data) {
+		let death_location = [];
+		let xDeath = [];
+		let yDeath = [];
+		let age = [];
+		let sex = 0;
+
+
+    	for (var i = 0; i < data.length; i++) {
+      	  death_location.push({
+      	  					"x": parseFloat(data[i].x),
+      	  					"y": parseFloat(data[i].y),
+      	  					"age": parseInt(data[i].age),
+      	  					"gender": parseBool(data[i].gender)
+      	  				});
+
+    	}
+    	console.log(death_location);
+    	map.selectAll("circles")
+			.data(death_location)
+			.enter()
+			.append("circle")
+			.attr("r", 4)
+			.style("fill", function (d) {if(sex == 0){return "blue";} else {return "pink";}})
+			.attr("cx", function (d) { return xScale(d.x); })
+			.attr("cy", function (d) { return yScale(d.y); })
 	});
 
 	
