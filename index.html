@@ -7,17 +7,16 @@
 </head>
 <body>
 	<!-- transform = "rotate(180) scale(-1,1)" -->
-	<svg id="map" width=800 height=600  >
+	<svg id="map" width=500 height=500  >
 		<text id='label' x='800' y='2000'>Timeline</text>
-		
-	</svg>
 
-	<svg id="timeline" width=800 height=600>
+	</svg>
+	<svg id="timeline" width=500 height=500>
 		<!--<g transform="translate(20,40)"> -->
 		<g>	
 		</g>
 	</svg>
-	<div id="my_dataviz"></div>
+	
 	<style type="text/css">
 		 .axis {
   			 font: 10px sans-serif;
@@ -63,15 +62,16 @@
 	const xScale = d3.scale.linear();
 	const yScale = d3.scale.linear();
 
-	xScale.domain([0,20]).range([0, 700]);			
-	yScale.domain([20,0]).range( [0, 700]);
+	xScale.domain([0,20]).range([0, 500]);			
+	yScale.domain([20,0]).range( [0, 500]);
+
 
 
 
 //timeline bar chart variable
-	var margin = {top: 20, right: 20, bottom: 70, left: 40},
+	var margin = {top: -20, right: 20, bottom: 70, left: 40},
 	    width = 700 - margin.left - margin.right,
-	    height = 600 - margin.top - margin.bottom;
+	    height = 400 - margin.top - margin.bottom;
 
 	// Parse the date / time
 	var parseDate = d3.time.format("%d-%b").parse;
@@ -130,38 +130,99 @@
 	  svg.selectAll("bar")
 	      .data(data)
 	    .enter().append("rect")
-	      .style("fill", "steelblue")
+	      .style("fill", "orange")
 	      .attr("x", function(d) { return x(d.date); })
 	      .attr("width", x.rangeBand())
 	      .attr("y", function(d) { return y(d.deaths); })
 	      .attr("height", function(d) { return height - y(d.deaths); })
 	      .on("mouseover", function(d){
 	      		tooltip.style("display", null);
+	      		d3.select(this).transition()
+               .duration('50')
+               .attr('opacity', '.70');
 	      })
 	      .on("mouseout", function(d){
 	      		tooltip.style("display", "none");
+	      		d3.select(this).transition()
+               .duration('50')
+               .attr('opacity', '1');
 
 	      })
- 		  .on("mousemove", function(d){
+ 		  .on("mousemove", function(d, i){
 	      		var xPos = d3.mouse(this)[0] - 15;
 	      		var yPos = d3.mouse(this)[1] - 55;
+	      		var dayCount = i + 1; 
 	      		tooltip.attr("transform", 
 	      				"translate(" + xPos + "," + yPos + ")");
 	      		tooltip.select("text").text("deaths:" +
-	      			 d.deaths);
+	      			 d.deaths  
+	      			 + ", day:" + dayCount
+	      			 )
+
+		    })
+ 		  .on("click", function(d) {
+ 		  	console.log('d ', d);
+
+		    	d3.select('#map').selectAll("circle").remove();
+		    	// d3.select('#map').selectAll("circles").
+
+		    	//function drawDeathCircles();
+	 
 	      });
 
 	      var tooltip = svg.append("g")
 	      				.attr("class", tooltip)
 	      				.style("display", "none");
 
-	      		tooltip.append("text")
-	      				.attr("x", 15)
-	      				.attr("dy", "1.2em")
-	      				.style("font-size", "1.25em")
-	      				.attr("font-weight", "bold");
+	  		tooltip.append("text")
+	  				.attr("x", 15)
+	  				.attr("dy", "1.2em")
+	  				.style("font-size", "1.25em")
+	  				.attr("font-weight", "bold");
+
 	      
 	}); 
+
+	
+	//*************************************
+
+
+	/*d3.csv(deaths_age_sex, function(data) {
+
+		//console.log(data);
+		var ageGroup = [0, 0, 0, 0, 0, 0];
+    	for (var i = 0; i < data.length; i++) {
+
+    		if(data[i].age <= 10){
+    			ageGroup[0]++;
+    		}else if (data[i].age >= 11 && data[i].age <=20){
+    			ageGroup[1]++;
+    		}else if (data[i].age >= 21 && data[i].age <=40){
+    			ageGroup[2]++;
+    		}else if (data[i].age >= 41 && data[i].age <=60){
+    			ageGroup[3]++;
+    		}else if (data[i].age >= 61 && data[i].age <=80){
+    			ageGroup[4]++;
+    		}else{
+    			ageGroup[5]++;
+    		}
+
+    		for(var i =0; i<6; i++){
+    		console.log("agegroup[" + i + "] =" +ageGroup[i]);
+    	}
+    }
+    	
+    });
+
+	   /* data.forEach(function(d) {
+	        d.date = parseDate(d.date);
+	        d.deaths = +(d.deaths);
+	    });*/
+
+	//******************************
+
+
+
 
 	//  reading json file from d3
 	d3.json(streets, function(data) {
@@ -180,6 +241,39 @@
 			.style('fill', 'none')
 			.style('stroke', 'black')
 			.style('stroke-width', '1px')
+
+		map.append("text")
+  			.style("fill", "black")
+  			.style("font-size", "16px")
+  			.attr("dy", ".35em")
+ 		 	.attr("text-anchor", "middle")
+  			.attr("transform", "translate(187,233) rotate(60)")
+  			.text("Regent Street");
+
+  		map.append("text")
+  			.style("fill", "black")
+  			.style("font-size", "16px")
+  			.attr("dy", ".35em")
+ 		 	.attr("text-anchor", "middle")
+  			.attr("transform", "translate(255,80) rotate(-10)")
+  			.text("Oxford Street");
+
+		map.append("text")
+  			.style("fill", "black")
+  			.style("font-size", "16px")
+  			.attr("dy", ".35em")
+ 		 	.attr("text-anchor", "middle")
+  			.attr("transform", "translate(362,168) rotate(60)")
+  			.text("Wick Street");
+
+	     map.append("text")
+  			.style("fill", "black")
+  			.style("font-size", "18px")
+  			.attr("dy", ".35em")
+ 		 	.attr("text-anchor", "middle")
+  			.attr("transform", "translate(315,199) rotate(-28)")
+  			.text("Broad Street");
+	      	;
 		;
 	});
 
@@ -190,14 +284,27 @@
     	for (var i = 0; i < data.length; i++) {
       	  pump_location.push({"x": parseFloat(data[i].x), "y": parseFloat(data[i].y)});
     	}
-    	map.selectAll("circles")
+    /*	map.selectAll("pump_circles")
 			.data(pump_location)
 			.enter()
 			.append("circle")
 			.attr("r", PUMPS_CIRCLE_RADIUS)
 			.style("fill", "black")
 			.attr("cx", function (d) { return xScale(d.x); })
-			.attr("cy", function (d) { return yScale(d.y); })
+			.attr("cy", function (d) { return yScale(d.y); })*/
+
+
+
+		map.selectAll("pumps_rect")
+			.data(pump_location)
+			.enter().append("rect")
+	      	.style("fill", "black")
+	      	.attr("x", function(d) { return xScale(d.x); })
+	      	.attr("width", 13)
+	      	.attr("y", function(d) { return yScale(d.y); })
+	      	.attr("height", 13)
+
+
 	});
 
 	//Reading deaths data
@@ -214,16 +321,24 @@
       	  				});
 
     	}
-    	//console.log("death_location: " + death_location);
-    	map.selectAll("circles")
+    	
+			drawDeathCircles(death_location);
+			
+	     
+
+	}); 
+
+	function drawDeathCircles(data){
+		let death_location = data;
+		map.selectAll("death_circles")
 			.data(death_location)
 			.enter()
 			.append("circle")
 			.attr("r", DEATH_CIRCLE_RADIUS)
-			.style("fill", function (d) {console.log(d.gender); if(d.gender == "0"){return "blue";} else {return "pink";}})
+			.style("fill", function (d) {if(d.gender == "0"){return "blue";} else {return "pink";}})
 			.attr("cx", function (d) { return xScale(d.x); })
 			.attr("cy", function (d) { return yScale(d.y); })
-	}); 
+	}
 
 
 	
