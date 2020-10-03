@@ -65,7 +65,8 @@
 	xScale.domain([0,20]).range([0, 500]);			
 	yScale.domain([20,0]).range( [0, 500]);
 
-
+	let dayToDeathCount = new Map();
+	let ageGroupDeaths = new Map();
 
 
 //timeline bar chart variable
@@ -98,10 +99,11 @@
 	          "translate(" + margin.left + "," + margin.top + ")");
 
 	d3.csv(deathdays, function(error, data) {
-
+		let totalDeaths = 0;
 	    data.forEach(function(d) {
 	        d.date = parseDate(d.date);
 	        d.deaths = +(d.deaths);
+	        // dayToDeathCount[d.date] = totalDeaths + d.deaths;
 	    });
 	 
 	  x.domain(data.map(function(d) { return d.date; }));
@@ -113,7 +115,7 @@
 	      .call(xAxis)
 	    .selectAll("text")
 	      .style("text-anchor", "end")
-	      .attr("dx", "-.8em")
+	      .attr("dx", "-.8em") 
 	      .attr("dy", "-.55em")
 	      .attr("transform", "rotate(-90)" );
 
@@ -160,10 +162,12 @@
 	      			 )
 
 		    })
+
+ 		  //Question **************
  		  .on("click", function(d) {
  		  	console.log('d ', d);
 
-		    	d3.select('#map').selectAll("circle").remove();
+		    	d3.select('#map').selectAll("circle").remove().data();
 		    	// d3.select('#map').selectAll("circles").
 
 		    	//function drawDeathCircles();
@@ -187,37 +191,33 @@
 	//*************************************
 
 
-	/*d3.csv(deaths_age_sex, function(data) {
+	d3.csv(deaths_age_sex, function(data) {
 
 		//console.log(data);
-		var ageGroup = [0, 0, 0, 0, 0, 0];
-    	for (var i = 0; i < data.length; i++) {
-
-    		if(data[i].age <= 10){
-    			ageGroup[0]++;
-    		}else if (data[i].age >= 11 && data[i].age <=20){
-    			ageGroup[1]++;
-    		}else if (data[i].age >= 21 && data[i].age <=40){
-    			ageGroup[2]++;
-    		}else if (data[i].age >= 41 && data[i].age <=60){
-    			ageGroup[3]++;
-    		}else if (data[i].age >= 61 && data[i].age <=80){
-    			ageGroup[4]++;
-    		}else{
-    			ageGroup[5]++;
-    		}
-
-    		for(var i =0; i<6; i++){
-    		console.log("agegroup[" + i + "] =" +ageGroup[i]);
+    	for (var i = 0; i < 2; i++) {
+    		console.log("data[i]", data[i], "typeof", typeof(data[i]));
+    		let age = parseInt(data[i].age);
+    		if(age == 0){
+    			dayToDeathCount[age] = dayToDeathCount[age] + 1;
+    		}else if (age == 1){
+    			dayToDeathCount[age] = dayToDeathCount[age] + 1;
+    		}else if (age == 2){
+    			dayToDeathCount[age] = dayToDeathCount[age] + 1;
+    		}else if (age == 3){
+    			dayToDeathCount[age] = dayToDeathCount[age] + 1;
+    		}else if (age == 4){
+    			dayToDeathCount[age] = dayToDeathCount[age] + 1;
+    		}else if(age == 5) {
+    			dayToDeathCount[age] = dayToDeathCount[age] + 1;
     	}
+    	console.log('ageGroup', dayToDeathCount);
+
+
     }
     	
     });
 
-	   /* data.forEach(function(d) {
-	        d.date = parseDate(d.date);
-	        d.deaths = +(d.deaths);
-	    });*/
+	
 
 	//******************************
 
@@ -273,6 +273,21 @@
  		 	.attr("text-anchor", "middle")
   			.attr("transform", "translate(315,199) rotate(-28)")
   			.text("Broad Street");
+
+
+  			map.append("rect")
+	      	.style("fill", "Green")
+	      	.attr("x", 270 )
+	      	.attr("width", 17)
+	      	.attr("y", 160)
+	      	.attr("height", 17)
+	      	
+	      	map.append("rect")
+	      	.style("fill", "grey")
+	      	.attr("x", 343 )
+	      	.attr("width", 9)
+	      	.attr("y",200)
+	      	.attr("height", 9)
 	      	;
 		;
 	});
@@ -284,25 +299,15 @@
     	for (var i = 0; i < data.length; i++) {
       	  pump_location.push({"x": parseFloat(data[i].x), "y": parseFloat(data[i].y)});
     	}
-    /*	map.selectAll("pump_circles")
-			.data(pump_location)
-			.enter()
-			.append("circle")
-			.attr("r", PUMPS_CIRCLE_RADIUS)
-			.style("fill", "black")
-			.attr("cx", function (d) { return xScale(d.x); })
-			.attr("cy", function (d) { return yScale(d.y); })*/
-
-
 
 		map.selectAll("pumps_rect")
 			.data(pump_location)
 			.enter().append("rect")
 	      	.style("fill", "black")
 	      	.attr("x", function(d) { return xScale(d.x); })
-	      	.attr("width", 13)
+	      	.attr("width", 11)
 	      	.attr("y", function(d) { return yScale(d.y); })
-	      	.attr("height", 13)
+	      	.attr("height", 11)
 
 
 	});
