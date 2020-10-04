@@ -67,7 +67,7 @@ let timeline = d3.select("#timeline");
 let ageChart = d3.select("#age_group_deaths");
 let genderChart = d3.select("#gender_chart");
 
-
+let deathsBeforeDay = new Map();
 const xScale = d3.scale.linear();
 const yScale = d3.scale.linear();
 
@@ -76,6 +76,10 @@ yScale.domain([20, 0]).range([0, 500]);
 
 let ageGroupDeaths = new Map();
 let genderMap = new Map();
+
+let death_location = [];
+let sortedDeathLocations = [];
+
 
 //timeline bar chart variable
 var margin = { top: -20, right: 20, bottom: 70, left: 40 },
@@ -111,8 +115,10 @@ d3.csv(deathdays, function(error, data) {
     data.forEach(function(d) {
         d.date = parseDate(d.date);
         d.deaths = +(d.deaths);
+        deathsBeforeDay.set(d.date, totalDeaths);
+        totalDeaths = totalDeaths + d.deaths;
     });
-
+    console.log(deathsBeforeDay);
     x.domain(data.map(function(d) { return d.date }));
     y.domain([0, d3.max(data, function(d) { return d.deaths; })]);
 
@@ -171,13 +177,19 @@ d3.csv(deathdays, function(error, data) {
         })
 
         //Question **************
-        .on("click", function(d) {
-            console.log('d ', d);
+        .on("click", function(d, i) {
+        	sortedDeathLocations.slice[0, deathsBeforeDay.get(d)]
+            map.selectAll("circle").remove();
+            map.selectAll("circle")
+                .data([])
+                .enter()
+                .append("circle")
+                .attr("r", DEATH_CIRCLE_RADIUS)
+                .style("fill", "green")
+                .attr("cx", function(d) { return xScale(d.x); })
+                .attr("cy", function(d) { return yScale(d.y); })
 
-            d3.select('#map').selectAll("circle").remove().data();
-            // d3.select('#map').selectAll("circles").
-
-            //function drawDeathCircles();
+            // console.log("on click d:", d, "i ", i) ;
 
         });
 
@@ -252,27 +264,27 @@ d3.csv(deaths_age_sex, function(data) {
     //***************
     var xScale_chart = d3.scale.linear();
 
-			xScale_chart.domain([correctly_formatted_data[0].x,
-			correctly_formatted_data[(correctly_formatted_data.length-1)].x])
-			.range([0, 300]);
-			
-
-			var pathGeneratorChart = d3.svg.line()
-				.x(function(d) { return xScale(d.x); })
-				;
-
-			var g = ageChart.select('g');
+    xScale_chart.domain([correctly_formatted_data[0].x,
+            correctly_formatted_data[(correctly_formatted_data.length - 1)].x
+        ])
+        .range([0, 300]);
 
 
-			var xAxisChart = d3.svg.axis()
-    			.scale(xScale_chart)
-    			.orient('bottom')
-    			.tickFormat(function(d) { return "" + d.x; })
+    var pathGeneratorChart = d3.svg.line()
+        .x(function(d) { return xScale(d.x); });
 
-    		g.append('g')
-    			.attr('class', 'axis')
-    			.attr('transform', 'translate(0,' + MAX_BAR_HEIGHT + ')')
-    			.call(xAxisChart);
+    var g = ageChart.select('g');
+
+
+    var xAxisChart = d3.svg.axis()
+        .scale(xScale_chart)
+        .orient('bottom')
+        .tickFormat(function(d) { return "" + d.x; })
+
+    g.append('g')
+        .attr('class', 'axis')
+        .attr('transform', 'translate(0,' + MAX_BAR_HEIGHT + ')')
+        .call(xAxisChart);
 
 
     rectangles.attr('width', BAR_WIDTH);
@@ -309,8 +321,7 @@ d3.csv(deaths_age_sex, function(data) {
             var deathCount = d.y;
             tooltip.attr("transform",
                 "translate(" + xPos + "," + yPos + ")");
-            tooltip.select("text").text("deaths:" + deathCount
-            )
+            tooltip.select("text").text("deaths:" + deathCount)
 
         })
 
@@ -371,29 +382,29 @@ d3.csv(deaths_age_sex, function(data) {
     var MAX_BAR_HEIGHT = 300;
 
     //xAxis
-     var xScale_chart = d3.scale.linear();
+    var xScale_chart = d3.scale.linear();
 
-			xScale_chart.domain([correctly_formatted_data[0].x,
-			correctly_formatted_data[(correctly_formatted_data.length-1)].x])
-			.range([0, 150]);
-			
-
-			var pathGeneratorChart = d3.svg.line()
-				.x(function(d) { return xScale(d.x); })
-				;
-
-			var g = genderChart.select('g');
+    xScale_chart.domain([correctly_formatted_data[0].x,
+            correctly_formatted_data[(correctly_formatted_data.length - 1)].x
+        ])
+        .range([0, 150]);
 
 
-			var xAxisChart = d3.svg.axis()
-    			.scale(xScale_chart)
-    			.orient('bottom')
-    			.tickFormat(function(d) { return "" + d.x; })
+    var pathGeneratorChart = d3.svg.line()
+        .x(function(d) { return xScale(d.x); });
 
-    		g.append('g')
-    			.attr('class', 'axis')
-    			.attr('transform', 'translate(0,' + MAX_BAR_HEIGHT + ')')
-    			.call(xAxisChart);
+    var g = genderChart.select('g');
+
+
+    var xAxisChart = d3.svg.axis()
+        .scale(xScale_chart)
+        .orient('bottom')
+        .tickFormat(function(d) { return "" + d.x; })
+
+    g.append('g')
+        .attr('class', 'axis')
+        .attr('transform', 'translate(0,' + MAX_BAR_HEIGHT + ')')
+        .call(xAxisChart);
     //
 
 
@@ -413,7 +424,7 @@ d3.csv(deaths_age_sex, function(data) {
         })
         .style("fill", function(d) { if (d.x == MALE) { return "blue"; } else { return "pink"; } })
 
-         .on("mouseover", function(d) {
+        .on("mouseover", function(d) {
             tooltip.style("display", null);
             d3.select(this).transition()
                 .duration('50')
@@ -432,8 +443,7 @@ d3.csv(deaths_age_sex, function(data) {
             var deathCount = d.y;
             tooltip.attr("transform",
                 "translate(" + xPos + "," + yPos + ")");
-            tooltip.select("text").text("deaths:" + deathCount
-            )
+            tooltip.select("text").text("deaths:" + deathCount)
 
         })
 
@@ -542,16 +552,18 @@ d3.csv(pumps, function(data) {
 //Reading deaths data
 d3.csv(deaths_age_sex, function(data) {
     let death_location = [];
+
     for (var i = 0; i < data.length; i++) {
         let age = data[i].age;
         let gender = data[i].gender;
-        death_location.push({
+        let properObject = {
             "x": parseFloat(data[i].x),
             "y": parseFloat(data[i].y),
             "age": age,
             "gender": gender
-        });
-
+        };
+        death_location.push(properObject);
+        sortedDeathLocations.push(properObject);
     }
 
     drawDeathCircles(death_location);
@@ -560,14 +572,16 @@ d3.csv(deaths_age_sex, function(data) {
 
 function drawDeathCircles(data) {
     let death_location = data;
-    map.selectAll("death_circles")
-        .data(death_location)
-        .enter()
+
+    var circles = map.selectAll("death_circles").data(death_location);
+
+    circles.enter()
         .append("circle")
         .attr("r", DEATH_CIRCLE_RADIUS)
         .style("fill", function(d) { if (d.gender == "0") { return "blue"; } else { return "pink"; } })
         .attr("cx", function(d) { return xScale(d.x); })
         .attr("cy", function(d) { return yScale(d.y); })
+
 }
 </script>
 
