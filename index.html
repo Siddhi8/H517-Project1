@@ -27,7 +27,7 @@
 
     	<text x='10' y='320'>female</text>
     <text x='80' y='320'>male</text>
-    	    <text id='label' x='20' y='380'> Gender Chart</text>
+    	    <text id='label' x='20' y='370'> Gender Chart</text>
 
         <g></g>
     </svg>
@@ -67,12 +67,12 @@ const PUMPS_CIRCLE_RADIUS = 8;
 const DEATH_CIRCLE_RADIUS = 4;
 const NUM_AGE_GROUP_MAP =
     new Map();
-NUM_AGE_GROUP_MAP.set(0, "<10");
+NUM_AGE_GROUP_MAP.set(0, "00-10");
 NUM_AGE_GROUP_MAP.set(1, "11-20");
 NUM_AGE_GROUP_MAP.set(2, "21-40");
 NUM_AGE_GROUP_MAP.set(3, "41-60");
 NUM_AGE_GROUP_MAP.set(4, "61-80");
-NUM_AGE_GROUP_MAP.set(5, ">80");
+NUM_AGE_GROUP_MAP.set(5, "80-");
 
 
 const NUM_GENDER_MAP =
@@ -99,7 +99,7 @@ let genderMap = new Map();
 let death_location = [];
 let sortedDeathLocations = [];
 
-
+var deathUntil = 0;
 //timeline bar chart variable
 var margin = { top: -20, right: 20, bottom: 70, left: 40 },
     width = 700 - margin.left - margin.right,
@@ -133,8 +133,10 @@ var svg = d3.select("body").append("svg")
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
 
+   let totalDeaths = 0;
+
 d3.csv(deathdays, function(error, data) {
-    let totalDeaths = 0;
+     totalDeaths;
     data.forEach(function(d) {
         d.date = parseDate(d.date);
         d.deaths = +(d.deaths);
@@ -190,6 +192,7 @@ d3.csv(deathdays, function(error, data) {
                 .style("fill", "red")
                 .attr("cx", function(d) { return xScale(d.x); })
                 .attr("cy", function(d) { return yScale(d.y); })
+
         })
         .on("mouseout", function(d) {
             tooltip.style("display", "none");
@@ -311,7 +314,18 @@ function get_age_group_deaths(data) {
         formatted_data.push({ 'x': NUM_AGE_GROUP_MAP.get(key), 'y': value });
     }
 
-    console.log("formatted_data : " + formatted_data);
+//*****
+	function compare(a, b) {
+  if (a.x > b.x) return 1;
+  if (b.x > a.x) return -1;
+
+  return 0;
+}
+
+//***
+formatted_data.sort(compare);
+
+   
     return formatted_data;
 }
 
